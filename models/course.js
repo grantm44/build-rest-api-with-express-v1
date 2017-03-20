@@ -1,3 +1,5 @@
+'use strict';
+
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema; 
 
@@ -21,12 +23,28 @@ var CourseSchema = new mongoose.Schema({
   reviews: [{type: Schema.Types.ObjectId, ref: 'Review'}]
 });
 
+//create pre save hook to count step number (index + 1) and atleast 1 step exists
+CourseSchema.pre('save', function(next){
+  var course = this;
+  var length = course.steps.length;
+  if(length === 0){
+    var err = new Error('Atleast 1 step is required');
+    err.status = 301;
+    next(err);
+  }else{
+    course.steps.forEach(function(step, i){
+      step.stepNumber = i + 1;
+    });
+  }
+  next();
+});
+
 //Returns avg of all review ratings for a specified course, rounded to nearest whole number
 CourseSchema.virtual('overallRating').get(function(){
-  var rate;
-  for(review in this.reviews){
-    var x = review.rating;
-    rate += x;
+  var rate = 0;
+  
+  for(var i = 0; i < this.reviews.length; i++){
+    rate += this.reviews[i].rating;
   }
   rate = rate / this.reviews.length;
   Math.round(rate);

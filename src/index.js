@@ -39,8 +39,11 @@ app.use(jsonParser());
 app.use('/', express.static('public'));
 app.use('/', routes);
 
-//app.use(mid.notFound);
-//app.use('/api/courses', mid.validateCourse);
+app.use(function(req, res, next){
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
 
 app.use(function(err, req, res, next){
   res.status(err.status || 500);

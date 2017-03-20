@@ -44,14 +44,12 @@ router.get('/api/courses/:id', function(req, res, next){
 //POST creates a course
 router.post('/api/courses', mid.basicAuth, function(req, res, next){
   var course = new Course(req.body);
-  course.steps.forEach(function(step, i){
-    step.stepNumber = i + 1;
-  });
-
-  console.log(course);
+  
   course.save(function(err){
     if(err) return next(err);
-    res.redirect('/');
+    res.status = 201;
+    res.location('/courses/');
+    res.end();
   });
 });
 
@@ -83,8 +81,9 @@ router.post('/api/users', function(req, res, next){
         err = mid.format(err);
         return next(err);
       }
-
-      res.redirect('/');
+      res.status = 201;
+      res.location('/');
+      res.end();
     });
 });
 
@@ -105,7 +104,9 @@ router.post('/api/courses/:courseId/reviews', mid.basicAuth, function(req, res, 
   review.save(function(err){
     if(err) return next(err);
   });
-  res.redirect('/api/courses/' + req.params.courseId);
+  res.status = 201;
+  res.location('/api/courses/' + req.params.courseId);
+  res.end();
 });
 
 //DELETE delete the specified review many review to one course
